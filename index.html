@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Body Diagram Practicer</title>
+<meta name="description" content="Whole-class free body diagram practice: draw it on your whiteboard, then reveal the answer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: one projector screen. Header with level tabs, prompt card (left) + answer card (right), control bar at the bottom. Matches the Unit 3 slides: Lexend, lavender ground, purple box, answers in red. */
+:root{
+  --bg:#faf6fd; --bg-blob:#e9dafa; --surface:#ffffff; --ink:#1e1029; --muted:#6b5a7a; --line:#e3d5f0;
+  --purple:#5b1f7c; --purple-ink:#ffffff; --lav:#d9c6f2; --lav-soft:#f1e8fb; --answer:#d4141b;
+  --obj:#ffffff; --ground:#a993c2;
+  --c-g:#c2185b; --c-N:#5b1f7c; --c-f:#a85d00; --c-app:#1565c0; --c-T:#2e7d32; --c-air:#00838f;
+  --font:"Lexend","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#160b1f; --bg-blob:#2a1640; --surface:#21122d; --ink:#f3eafb; --muted:#b8a4ca; --line:#3d2950;
+    --purple:#cfa6f5; --purple-ink:#1e1029; --lav:#4b2f68; --lav-soft:#2b1a3b; --answer:#ff6b6b;
+    --obj:#2d1b3c; --ground:#7d6896;
+    --c-g:#ff7aae; --c-N:#d3a8ff; --c-f:#ffb74d; --c-app:#6cb6ff; --c-T:#86d08a; --c-air:#4fd6e3;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#160b1f; --bg-blob:#2a1640; --surface:#21122d; --ink:#f3eafb; --muted:#b8a4ca; --line:#3d2950;
+  --purple:#cfa6f5; --purple-ink:#1e1029; --lav:#4b2f68; --lav-soft:#2b1a3b; --answer:#ff6b6b;
+  --obj:#2d1b3c; --ground:#7d6896;
+  --c-g:#ff7aae; --c-N:#d3a8ff; --c-f:#ffb74d; --c-app:#6cb6ff; --c-T:#86d08a; --c-air:#4fd6e3;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0}
+[hidden]{display:none!important}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(40rem 26rem at 108% -8%, var(--bg-blob), transparent 70%),
+                   radial-gradient(30rem 22rem at -10% 110%, var(--bg-blob), transparent 70%);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--font); font-size:16px; line-height:1.45;
+}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+
+.app{height:100%;min-height:560px;display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;
+  padding-block:14px 12px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  max-width:1500px;margin-inline:auto}
+
+/* Header */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.brand{display:flex;flex-direction:column;min-width:0}
+.brand small{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.brand h1{margin:0;font-size:clamp(1.3rem,2.2vw,1.9rem);font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.levels{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.lvl{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;cursor:pointer;
+  display:flex;gap:8px;align-items:center;font-size:.92rem;font-weight:500}
+.lvl b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--lav-soft);font-size:.78rem;color:var(--purple)}
+.lvl[aria-current="true"]{background:var(--purple);border-color:var(--purple);color:var(--purple-ink)}
+.lvl[aria-current="true"] b{background:var(--purple-ink);color:var(--purple)}
+.tools{display:flex;gap:6px}
+.ghost{border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:7px 12px;cursor:pointer;font-size:.9rem;font-weight:500}
+.ghost:hover{background:var(--lav-soft)}
+
+/* Progress dots */
+.dots{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.dotgroup{display:flex;gap:4px}
+.dot{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;
+  font-size:.72rem;font-weight:600;color:var(--muted);display:grid;place-items:center;padding:0;font-variant-numeric:tabular-nums}
+.dot.seen{background:var(--lav-soft)}
+.dot[aria-current="true"]{background:var(--purple);border-color:var(--purple);color:var(--purple-ink)}
+.dot.skip{opacity:.4;text-decoration:line-through;border-style:dashed}
+.skipbtn{margin-left:auto;border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer;
+  font-size:.8rem;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
+.skipbtn:hover{background:var(--lav-soft)}
+.skipbtn[aria-pressed="true"]{color:var(--answer);border-color:currentColor}
+.skipnote{font-size:.8rem;color:var(--muted)}
+
+/* Cards */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;min-height:0}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:clamp(16px,2vw,28px);
+  display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;overflow:auto}
+.eyebrow{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.qnum{background:var(--lav);color:var(--ink);border-radius:8px;padding:2px 10px;font-weight:700;letter-spacing:0;text-transform:none;font-size:.95rem}
+:root[data-theme="dark"] .qnum{color:var(--ink)}
+.prompt{font-size:clamp(1.35rem,2.35vw,2.15rem);line-height:1.3;font-weight:500;margin:0;text-wrap:pretty}
+.task{font-size:clamp(1rem,1.5vw,1.3rem);color:var(--purple);font-weight:600;margin:0}
+.scene{width:100%;height:100%;display:block}
+.scene-wrap{display:flex;justify-content:center;flex:1 1 0;min-height:120px}
+
+.answer{position:relative}
+.placeholder{flex:1;display:grid;place-items:center;text-align:center;border:2.5px dashed var(--lav);border-radius:12px;
+  cursor:pointer;background:transparent;padding:24px;min-height:260px}
+.placeholder:hover{background:var(--lav-soft)}
+.placeholder .big{font-size:clamp(1.6rem,3vw,2.6rem);font-weight:600;color:var(--purple);display:block}
+.placeholder .small{font-size:1rem;color:var(--muted);display:block;margin-top:6px}
+.diagrams{display:flex;gap:10px;justify-content:center;flex:1 1 0;min-height:170px}
+.diagram{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center}
+.diagram svg{width:100%;flex:1 1 0;min-height:0;display:block}
+.result,.why,.watch{flex:none}
+.diagram figcaption{font-weight:600;color:var(--muted);font-size:.95rem}
+.result{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.pill{border-radius:999px;padding:3px 14px;font-weight:600;font-size:1rem;border:2px solid currentColor}
+.pill.bal{color:var(--c-T)} .pill.unbal{color:var(--answer)}
+.fnet{font-size:clamp(1.15rem,1.9vw,1.6rem);font-weight:600;color:var(--answer)}
+.fnet sub,.why sub,.rules sub,.prompt sub,.task sub,.watch sub{font-size:.65em}
+.why{margin:0;padding-left:1.2em;font-size:clamp(.98rem,1.3vw,1.15rem);display:grid;gap:4px}
+.watch{background:var(--lav-soft);border-radius:10px;padding:10px 14px;font-size:clamp(.95rem,1.2vw,1.08rem)}
+.watch strong{color:var(--purple)}
+
+/* Controls */
+.controls{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.btn{border:none;border-radius:12px;padding:12px 22px;font-size:1.05rem;font-weight:600;cursor:pointer;min-height:48px}
+.btn.sec{background:var(--surface);border:1.5px solid var(--line)}
+.btn.sec:hover{background:var(--lav-soft)}
+.btn.pri{background:var(--purple);color:var(--purple-ink);min-width:12rem}
+.btn:disabled{opacity:.4;cursor:default}
+.hint{font-size:.8rem;color:var(--muted);text-align:center}
+.credit{font-size:.72rem;color:var(--muted);text-align:center;margin:0}
+.credit a{color:inherit}
+
+/* Rules panel */
+.overlay{position:fixed;inset:0;background:rgba(20,8,30,.45);display:grid;place-items:center;padding:20px;z-index:20}
+.rules{background:var(--surface);border-radius:var(--r);max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:24px 28px;border:1.5px solid var(--line)}
+.rules h2{margin:0 0 8px;font-size:1.5rem}
+.rules ol{padding-left:1.2em;font-size:1.08rem;display:grid;gap:4px}
+.key{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:1.05rem;margin-top:10px}
+.key .sym{font-weight:700}
+.rules .close{float:right}
+
+/* SVG */
+svg text{font-family:var(--font)}
+.o{fill:var(--obj);stroke:var(--purple);stroke-width:3}
+.ot{fill:var(--purple);font-size:15px;font-weight:600;text-anchor:middle}
+.gr{stroke:var(--ground);stroke-width:3}
+.hatch{stroke:var(--ground);stroke-width:1.5}
+.rampfill{fill:var(--lav-soft);stroke:var(--ground);stroke-width:3;stroke-linejoin:round}
+.vline{stroke:var(--muted);stroke-width:3;stroke-dasharray:8 6;fill:none}
+.vhead{fill:var(--muted)}
+.vlab{fill:var(--muted);font-size:17px;font-style:italic;font-weight:600}
+.note{fill:var(--muted);font-size:15px}
+.path{stroke:var(--ground);stroke-width:2;stroke-dasharray:3 6;fill:none}
+.flabel{font-size:22px;font-weight:600}
+.arr path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .42s ease-out forwards;animation-delay:calc(var(--i) * .4s)}
+.arr polygon,.arr text{opacity:0;animation:fade .25s ease-out forwards;animation-delay:calc(var(--i) * .4s + .35s)}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fade{to{opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .arr path{animation:none;stroke-dashoffset:0}
+  .arr polygon,.arr text{animation:none;opacity:1}
+}
+
+@media (max-width:900px){
+  .app{height:auto}
+  .card{overflow:visible}
+  .diagrams{flex:none;flex-wrap:wrap}
+  .diagram{flex:1 1 240px}
+  .diagram svg{flex:none;height:auto;max-height:60vh}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .levels{margin-left:0}
+  .scene-wrap{flex:none}
+  .scene{height:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><small>Unit 3 · Newton's Laws</small><h1>Free Body Diagram Practicer</h1></div>
+    <nav class="levels" id="levels" aria-label="Levels"></nav>
+    <div class="tools">
+      <button class="ghost" id="rulesBtn" type="button">FBD Rules</button>
+      <button class="ghost" id="fsBtn" type="button">Full screen</button>
+    </div>
+  </header>
+
+  <div class="dots" id="dots" aria-label="Questions"><span></span></div>
+
+  <main class="stage">
+    <section class="card" aria-live="polite">
+      <div class="eyebrow"><span class="qnum" id="qnum">#1</span><span id="lvlname"></span><button class="skipbtn" id="skipBtn" type="button" aria-pressed="false">Skip this one</button></div>
+      <p class="prompt" id="prompt"></p>
+      <p class="task" id="task"></p>
+      <div class="scene-wrap" id="scene"></div>
+    </section>
+    <section class="card answer" id="answer"></section>
+  </main>
+
+  <footer>
+    <div class="controls">
+      <button class="btn sec" id="prev" type="button">← Back</button>
+      <button class="btn pri" id="reveal" type="button">Reveal answer</button>
+      <button class="btn sec" id="next" type="button">Next →</button>
+    </div>
+    <p class="hint">Keyboard or clicker: → reveals the answer, press again for the next question · ← goes back · Space shows or hides the answer · Skipped questions are passed over by Next and Back</p>
+    <p class="credit">Created using Claude by Madison Webb, 2026. Anthropic. (2026). <i>Claude</i> [large language model]. https://claude.ai</p>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="rules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <button class="ghost close" id="closeRules" type="button">Close</button>
+    <h2 id="rulesTitle">Free Body Diagram Rules</h2>
+    <ol>
+      <li>Draw a box, on a surface or in the air.</li>
+      <li>Draw &amp; label each force acting on the object. Arrows start at the box and point the way the force pushes or pulls.</li>
+      <li>Arrow length shows the relative magnitude. Equal forces get equal arrows.</li>
+      <li><b>Balanced:</b> forces in either direction cancel. F<sub>net</sub> = 0 N; No Direction.</li>
+      <li><b>Unbalanced:</b> F<sub>net</sub> has a size <i>and</i> a direction.</li>
+      <li>Forces are not required to maintain motion. Only draw forces from things touching the object (plus gravity).</li>
+    </ol>
+    <div class="key" id="key"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Forces ---------- */
+var FORCES = {
+  g:   {sub:"g",   name:"gravity (weight). Always straight down."},
+  N:   {sub:"N",   name:"normal force. Perpendicular to the surface, pushing away from it."},
+  f:   {sub:"f",   name:"friction force. Along the surface, opposite the sliding."},
+  app: {sub:"app", name:"applied force. A push or pull from a person or object."},
+  T:   {sub:"T",   name:"tension. A pull along a rope, string, cord or cable."},
+  air: {sub:"air", name:"air resistance. Opposite the motion through the air."}
+};
+function F(k,a,l,x){ var o={k:k,a:a,l:l}; if(x){for(var p in x)o[p]=x[p];} return o; }
+function sym(k){ return "F<sub>"+FORCES[k].sub+"</sub>"; }
+
+/* ---------- Questions ----------
+   a = direction in degrees (0 right, 90 up, 180 left, 270 down). l = arrow length (0-1).
+   Ramps descend to the right at angle th, so: F_N = 90-th, up the ramp = 180-th, down the ramp = -th. */
+var LEVELS = [
+  {name:"Flat ground", short:"Flat ground"},
+  {name:"Through the air", short:"In the air"},
+  {name:"Magnitudes & F<sub>net</sub>", short:"F<sub>net</sub>"},
+  {name:"Ramps", short:"Ramps"}
+];
+var T1 = "";
+var T3 = "Draw the FBD with magnitudes. Find F<sub>net</sub>.";
+var Q = [
+/* ---- Level 1: flat ground ---- */
+{lv:0, p:"A book is resting on a table.", t:T1,
+ sc:{t:"floor", o:"book", surf:"table"},
+ d:[{f:[F("g",270,.62),F("N",90,.62)]}],
+ net:{bal:true},
+ why:["Gravity pulls the book down. The table pushes up with the normal force.","The book is not changing its motion, so the arrows are equal length."],
+ watch:"Drawing only F<sub>g</sub>. Ask: why doesn’t the book fall through the table?"},
+
+{lv:0, p:"A student pushes a box to the right across a rough floor. The box moves at a <b>constant velocity</b>.", t:T1,
+ sc:{t:"floor", o:"box", v:"right", note:"constant velocity", surf:"rough floor"},
+ d:[{f:[F("app",0,.5),F("f",180,.5),F("g",270,.7),F("N",90,.7)]}],
+ net:{bal:true},
+ why:["Constant velocity means the motion isn’t changing, so the forces are balanced.","The push to the right is matched by friction to the left."],
+ watch:"Making F<sub>app</sub> longer than F<sub>f</sub> “to keep it moving.” Constant velocity = balanced."},
+
+{lv:0, p:"A sled is pushed to the right across rough snow and is <b>speeding up</b>.", t:T1,
+ sc:{t:"floor", o:"box", txt:"sled", v:"right", note:"speeding up", surf:"rough snow"},
+ d:[{f:[F("app",0,.68),F("f",180,.3),F("g",270,.7),F("N",90,.7)]}],
+ net:{bal:false, dir:"to the right"},
+ why:["Speeding up means the motion is changing, so the forces are unbalanced.","F<sub>app</sub> is longer than F<sub>f</sub>. Vertical forces still cancel."],
+ watch:"Equal F<sub>app</sub> and F<sub>f</sub> arrows. Speeding up needs an unbalanced force."},
+
+{lv:0, p:"A hockey puck slides to the right across the ice after being hit. It is <b>slowing down</b>.", t:T1,
+ sc:{t:"floor", o:"puck", v:"right", note:"slowing down", surf:"ice"},
+ d:[{f:[F("f",180,.3),F("g",270,.62),F("N",90,.62)]}],
+ net:{bal:false, dir:"to the left"},
+ why:["Once the stick lets go, nothing is pushing the puck forward.","Friction points left, opposite the motion, so the puck slows down."],
+ watch:"Drawing a “force of the hit” to the right. The stick isn’t touching the puck anymore, so it can’t push it."},
+
+{lv:0, p:"A ball rolls to the right across a <b>frictionless</b> floor at a constant speed.", t:T1,
+ sc:{t:"floor", o:"ball", v:"right", note:"constant speed", surf:"frictionless floor"},
+ d:[{f:[F("g",270,.62),F("N",90,.62)]}],
+ net:{bal:true},
+ why:["No friction means no horizontal forces at all.","It keeps rolling because of inertia, not because of a force (Newton’s 1st Law)."],
+ watch:"Adding a forward force to keep it moving. Forces are not required to maintain motion."},
+
+{lv:0, p:"A lamp hangs from the ceiling by a cord.", t:T1,
+ sc:{t:"hang", o:"lamp"},
+ d:[{f:[F("T",90,.62),F("g",270,.62)]}],
+ net:{bal:true},
+ why:["The cord pulls up on the lamp. That pull is tension.","The lamp is at rest, so F<sub>T</sub> equals F<sub>g</sub>."],
+ watch:"Drawing F<sub>N</sub>. There’s no surface under the lamp to push up on it."},
+
+{lv:0, p:"A wagon is pulled to the right by a horizontal rope. It moves at a <b>constant velocity</b> on rough ground.", t:T1,
+ sc:{t:"floor", o:"cart", txt:"wagon", v:"right", note:"constant velocity", surf:"rough ground", rope:true},
+ d:[{f:[F("T",0,.5),F("f",180,.5),F("g",270,.7),F("N",90,.7)]}],
+ net:{bal:true},
+ why:["A pull through a rope is tension, F<sub>T</sub>.","Constant velocity: F<sub>T</sub> = F<sub>f</sub> and F<sub>N</sub> = F<sub>g</sub>."],
+ watch:"Mixing up F<sub>app</sub> and F<sub>T</sub>. Ropes, strings, cords and cables pull with tension."},
+
+/* ---- Level 2: through the air ---- */
+{lv:1, p:"A ball is thrown straight up. Draw it <b>on the way up</b>. Ignore air resistance.", t:T1,
+ sc:{t:"air", o:"ball", at:[240,118], v:90, note:"moving up", path:"vertical"},
+ d:[{f:[F("g",270,.7)]}],
+ net:{bal:false, dir:"down"},
+ why:["Once it leaves your hand, the only force is gravity.","F<sub>net</sub> points down even though the ball moves up. That’s why it slows down."],
+ watch:"Drawing an upward “force of the throw.” Your hand stopped pushing when the ball left it."},
+
+{lv:1, p:"The same ball at the <b>very top</b> of its path. Ignore air resistance.", t:T1,
+ sc:{t:"air", o:"ball", at:[240,62], v:"zero", note:"v = 0 m/s for an instant", path:"vertical"},
+ d:[{f:[F("g",270,.7)]}],
+ net:{bal:false, dir:"down"},
+ why:["Velocity is zero for an instant, but gravity never turns off.","F<sub>g</sub> is the same size at every point in the flight."],
+ watch:"“No forces at the top.” If F<sub>net</sub> were 0 N, the ball would float there."},
+
+{lv:1, p:"A cannonball is launched at an angle. Draw it partway up, moving up and to the right. Ignore air resistance.", t:T1,
+ sc:{t:"air", o:"ball", at:[168,122], v:29, path:"arc"},
+ d:[{f:[F("g",270,.7)]}],
+ net:{bal:false, dir:"down"},
+ why:["Only gravity, straight down. There is no forward force.","No horizontal force means v<sub>x</sub> stays constant. That’s why v<sub>x</sub> never changes in projectile problems."],
+ watch:"A diagonal arrow along the path. Forces don’t have to point the way the object is moving."},
+
+{lv:1, p:"A ball rolls off the edge of a table. Draw it <b>while it’s falling</b>. Ignore air resistance.", t:T1,
+ sc:{t:"air", o:"ball", at:[236,150], v:-52, path:"table"},
+ d:[{f:[F("g",270,.7)]}],
+ net:{bal:false, dir:"down"},
+ why:["Once it leaves the table, there’s no surface, so no normal force.","Same FBD as every projectile: only F<sub>g</sub>."],
+ watch:"Keeping F<sub>N</sub> after it leaves the table, or adding a sideways force."},
+
+{lv:1, p:"Now add air resistance. A skydiver just jumped out of a plane and is <b>speeding up</b> as she falls.", t:T1,
+ sc:{t:"air", o:"diver", at:[230,112], v:270, note:"speeding up"},
+ d:[{f:[F("g",270,.85),F("air",90,.35)]}],
+ net:{bal:false, dir:"down"},
+ why:["Air resistance always points opposite the motion. She moves down, so F<sub>air</sub> points up.","Speeding up means F<sub>g</sub> is bigger than F<sub>air</sub>."],
+ watch:"F<sub>air</sub> pointing down, or drawn equal to F<sub>g</sub>."},
+
+{lv:1, p:"The skydiver is now falling at <b>terminal velocity</b> (a constant speed).", t:T1,
+ sc:{t:"air", o:"diver", at:[230,112], v:270, note:"constant speed"},
+ d:[{f:[F("g",270,.8),F("air",90,.8)]}],
+ net:{bal:true},
+ why:["Constant velocity means balanced forces.","F<sub>air</sub> grew as she sped up until it matched F<sub>g</sub>."],
+ watch:"Thinking the downward force must still be bigger because she’s still falling. Falling at a constant speed is balanced."},
+
+{lv:1, p:"She opens her parachute and is <b>slowing down</b> while still falling.", t:T1,
+ sc:{t:"air", o:"chute", at:[230,150], v:270, note:"slowing down"},
+ d:[{f:[F("air",90,.95),F("g",270,.6)]}],
+ net:{bal:false, dir:"up"},
+ why:["The big parachute makes F<sub>air</sub> larger than F<sub>g</sub>.","F<sub>net</sub> points up even though she’s moving down. That’s why she slows down."],
+ watch:"Shrinking F<sub>g</sub>. Her weight didn’t change. Only F<sub>air</sub> changed."},
+
+{lv:1, p:"A ball is thrown straight up. Draw it <b>on the way up</b>, <b>with</b> air resistance.", t:T1,
+ sc:{t:"air", o:"ball", at:[240,118], v:90, note:"moving up", path:"vertical"},
+ d:[{f:[F("g",270,.7,{ox:-18}),F("air",270,.3,{ox:18})]}],
+ net:{bal:false, dir:"down"},
+ why:["The ball moves up, so air resistance points down.","Both forces point down, so the ball slows down faster than it would without air."],
+ watch:"F<sub>air</sub> pointing up “against gravity.” Air resistance opposes the motion, not gravity."},
+
+/* ---- Level 3: magnitudes & net force ---- */
+{lv:2, p:"A backpack sits on the floor. Gravity pulls it down with <b>50 N</b>.", t:"Draw the FBD with magnitudes. Find F<sub>N</sub> and F<sub>net</sub>.",
+ sc:{t:"floor", o:"box", txt:"backpack", surf:"floor"},
+ d:[{f:[F("g",270,.62,{v:"50 N"}),F("N",90,.62,{v:"50 N"})]}],
+ net:{bal:true},
+ why:["The backpack isn’t moving up or down, so F<sub>N</sub> = F<sub>g</sub> = 50 N.","50 N − 50 N = 0 N"],
+ watch:"Forgetting F<sub>N</sub> or giving it a different size."},
+
+{lv:2, p:"A box is pushed to the right with <b>30 N</b>. Friction is <b>10 N</b>. F<sub>g</sub> and F<sub>N</sub> are each <b>100 N</b>.", t:T3,
+ sc:{t:"floor", o:"box", v:"right", surf:"floor"},
+ d:[{f:[F("app",0,.5,{v:"30 N"}),F("f",180,.2,{v:"10 N"}),F("g",270,.75,{v:"100 N"}),F("N",90,.75,{v:"100 N"})]}],
+ net:{bal:false, val:"20 N", dir:"to the right"},
+ why:["Vertical: 100 N − 100 N = 0 N","Horizontal: 30 N − 10 N = 20 N to the right"],
+ watch:"Adding all four forces (240 N). Only combine forces along the same line. Opposite directions subtract."},
+
+{lv:2, p:"Tug-of-war: Team A pulls the rope <b>left with 400 N</b>. Team B pulls <b>right with 350 N</b>. Draw the FBD of the rope (ignore its weight).", t:T3,
+ sc:{t:"rope"},
+ d:[{f:[F("T",180,.85,{v:"400 N"}),F("T",0,.74,{v:"350 N"})]}],
+ net:{bal:false, val:"50 N", dir:"to the left"},
+ why:["Both teams pull through the rope, so both forces are tension.","400 N − 350 N = 50 N to the left (toward Team A)"],
+ watch:"Answering “50 N” with no direction. Unless it’s 0 N, F<sub>net</sub> always needs a direction."},
+
+{lv:2, p:"A rock falls. Gravity is <b>60 N</b> and air resistance is <b>15 N</b>.", t:T3,
+ sc:{t:"air", o:"rock", at:[230,110], v:270, note:"falling"},
+ d:[{f:[F("g",270,.85,{v:"60 N"}),F("air",90,.22,{v:"15 N"})]}],
+ net:{bal:false, val:"45 N", dir:"down"},
+ why:["The rock moves down, so F<sub>air</sub> points up.","60 N − 15 N = 45 N down"],
+ watch:"Adding to get 75 N. Opposite directions subtract."},
+
+{lv:2, p:"Two students push a couch to the right, one with <b>80 N</b> and one with <b>60 N</b>. Friction is <b>120 N</b>. F<sub>g</sub> and F<sub>N</sub> are each <b>500 N</b>.", t:T3,
+ sc:{t:"floor", o:"box", txt:"couch", w:130, h:58, v:"right", surf:"floor"},
+ d:[{f:[F("app",0,.46,{v:"80 N",oy:-13}),F("app",0,.35,{v:"60 N",oy:13}),F("f",180,.68,{v:"120 N"}),F("g",270,.85,{v:"500 N"}),F("N",90,.85,{v:"500 N"})]}],
+ net:{bal:false, val:"20 N", dir:"to the right"},
+ why:["Same direction adds: 80 N + 60 N = 140 N to the right","Horizontal: 140 N − 120 N = 20 N to the right. Vertical forces cancel."],
+ watch:"Forgetting to add the two pushes together first."},
+
+{lv:2, p:"An elevator’s cable pulls up on it with <b>1,200 N</b>. Gravity on the elevator is <b>1,000 N</b>.", t:T3,
+ sc:{t:"hang", o:"elevator", v:90, note:"speeding up"},
+ d:[{f:[F("T",90,.85,{v:"1,200 N"}),F("g",270,.7,{v:"1,000 N"})]}],
+ net:{bal:false, val:"200 N", dir:"up"},
+ why:["The cable pulls with tension.","1,200 N − 1,000 N = 200 N up"],
+ watch:"Calling the cable force F<sub>app</sub>. Cables pull with tension."},
+
+{lv:2, p:"A box slides to the right at a <b>constant velocity</b>. The push is <b>45 N</b> and gravity is <b>200 N</b>.", t:"Draw the FBD. Find F<sub>f</sub>, F<sub>N</sub> and F<sub>net</sub>.",
+ sc:{t:"floor", o:"box", v:"right", note:"constant velocity", surf:"rough floor"},
+ d:[{f:[F("app",0,.45,{v:"45 N"}),F("f",180,.45,{v:"45 N"}),F("g",270,.8,{v:"200 N"}),F("N",90,.8,{v:"200 N"})]}],
+ net:{bal:true},
+ why:["Constant velocity means balanced forces, so F<sub>net</sub> = 0 N.","That means F<sub>f</sub> = 45 N to the left and F<sub>N</sub> = 200 N up."],
+ watch:"Making friction smaller than the push because the box is moving right."},
+
+{lv:2, p:"A <b>20 N</b> book sits on a table. You push straight down on it with <b>10 N</b>.", t:"Draw the FBD. Find F<sub>N</sub> and F<sub>net</sub>.",
+ sc:{t:"floor", o:"book", surf:"table", push:true},
+ d:[{f:[F("N",90,.9,{v:"30 N"}),F("g",270,.6,{v:"20 N",ox:-20}),F("app",270,.3,{v:"10 N",ox:20})]}],
+ net:{bal:true},
+ why:["The book isn’t moving, so up = down.","F<sub>N</sub> = 20 N + 10 N = 30 N. The normal force is not always equal to F<sub>g</sub>!"],
+ watch:"Writing F<sub>N</sub> = 20 N out of habit. The table pushes back against everything pressing on it."},
+
+/* ---- Level 4: ramps (drawing only) ---- */
+{lv:3, p:"A box sits still on a ramp. It does <b>not</b> slide.", t:T1,
+ sc:{t:"ramp", th:25},
+ d:[{th:25, f:[F("g",270,.8),F("N",65,.72),F("f",155,.34)]}],
+ net:{bal:true},
+ why:["F<sub>g</sub> still points straight down, toward the center of the Earth. Not into the ramp.","F<sub>N</sub> is perpendicular to the ramp. Friction points up the ramp so the box doesn’t slide down."],
+ watch:"Tilting F<sub>g</sub> into the ramp, or drawing F<sub>N</sub> straight up."},
+
+{lv:3, p:"A box slides down a <b>frictionless</b> ramp.", t:T1,
+ sc:{t:"ramp", th:25, v:"down", note:"sliding down"},
+ d:[{th:25, f:[F("g",270,.8),F("N",65,.72)]}],
+ net:{bal:false, dir:"down the ramp"},
+ why:["Only two forces: F<sub>g</sub> straight down and F<sub>N</sub> perpendicular to the ramp.","They don’t point in opposite directions, so they can’t cancel. F<sub>net</sub> points down the ramp."],
+ watch:"Adding a separate “force down the ramp.” That pull comes from gravity, which is already drawn."},
+
+{lv:3, p:"A box slides down a <b>rough</b> ramp and is speeding up.", t:T1,
+ sc:{t:"ramp", th:25, v:"down", note:"speeding up"},
+ d:[{th:25, f:[F("g",270,.8),F("N",65,.72),F("f",155,.2)]}],
+ net:{bal:false, dir:"down the ramp"},
+ why:["Friction points up the ramp, opposite the sliding.","F<sub>g</sub> is still straight down, the same as on flat ground."],
+ watch:"Friction pointing down the ramp, the same way the box moves."},
+
+{lv:3, p:"You give a cart a shove and it rolls <b>up</b> a frictionless ramp, slowing down.", t:"Draw the FBD after your hand lets go. Balanced or unbalanced?",
+ sc:{t:"ramp", th:25, o:"cart", v:"up", note:"slowing down"},
+ d:[{th:25, f:[F("g",270,.8),F("N",65,.72)]}],
+ net:{bal:false, dir:"down the ramp"},
+ why:["Once your hand lets go, nothing is pushing the cart up the ramp.","Same FBD as sliding down a frictionless ramp. The direction of motion doesn’t change the forces."],
+ watch:"Drawing a force up the ramp to keep it moving. Forces are not required to maintain motion."},
+
+{lv:3, p:"You push a box up a rough ramp at a <b>constant velocity</b>. Your push is parallel to the ramp.", t:T1,
+ sc:{t:"ramp", th:25, v:"up", note:"constant velocity", hand:true},
+ d:[{th:25, f:[F("app",155,.62),F("f",335,.28),F("g",270,.8),F("N",65,.72)]}],
+ net:{bal:true},
+ why:["F<sub>app</sub> points up the ramp. Friction points down the ramp, opposite the motion.","F<sub>g</sub> is still straight down. Constant velocity means it all balances."],
+ watch:"Friction pointing up the ramp out of habit. Friction opposes the direction the box slides."},
+
+{lv:3, p:"The same box slides down two <b>frictionless</b> ramps: a gentle one (20°) and a steep one (45°).", t:"Draw both FBDs. What changes and what stays the same?",
+ sc:{t:"ramp2"},
+ d:[{th:20, cap:"Gentle ramp (20°)", f:[F("g",270,.8),F("N",70,.75)]},
+    {th:45, cap:"Steep ramp (45°)", f:[F("g",270,.8),F("N",45,.57)]}],
+ net:{custom:"F<sub>g</sub> is the same on both ramps"},
+ why:["F<sub>g</sub> is identical on both: same size, straight down. Gravity doesn’t care about the ramp.","F<sub>N</sub> tilts with the ramp and gets smaller on the steeper ramp.","The steep ramp has a bigger F<sub>net</sub> down the ramp, so the box speeds up faster."],
+ watch:"Tilting F<sub>g</sub> on the steep ramp, or making it bigger."}
+];
+
+/* ---------- SVG helpers ---------- */
+function r1(n){ return Math.round(n*10)/10; }
+function head(x1,y1,x2,y2,size,cls,fill){
+  var dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+  var bx=x2-ux*size, by=y2-uy*size, px=-uy*size*.55, py=ux*size*.55;
+  return {bx:bx, by:by, s:'<polygon '+(cls?'class="'+cls+'" ':'')+(fill?'fill="'+fill+'" ':'')+'points="'+r1(x2)+','+r1(y2)+' '+r1(bx+px)+','+r1(by+py)+' '+r1(bx-px)+','+r1(by-py)+'"/>'};
+}
+function vArrow(x1,y1,x2,y2){
+  var h=head(x1,y1,x2,y2,14,"vhead");
+  return '<path class="vline" d="M'+r1(x1)+' '+r1(y1)+' L'+r1(h.bx)+' '+r1(h.by)+'"/>'+h.s+
+         '<text class="vlab" x="'+r1(x2+ (x2>=x1?8:-8))+'" y="'+r1(y2+(y2<y1?-4:16))+'" text-anchor="'+(Math.abs(x2-x1)<4?'middle':(x2>x1?'start':'end'))+'">v</text>';
+}
+function note(x,y,txt,anchor){ return '<text class="note" x="'+x+'" y="'+y+'" text-anchor="'+(anchor||"middle")+'">'+txt+'</text>'; }
+function hatchRow(x0,x1,y,down){
+  var s=''; for(var x=x0+6;x<x1;x+=20){ s+='<line class="hatch" x1="'+x+'" y1="'+(down?y:y)+'" x2="'+(x-12)+'" y2="'+(down?y+12:y-12)+'"/>'; } return s;
+}
+
+/* Objects drawn with bottom-center at (x,yb). Return svg + height. */
+function drawObj(kind,x,yb,o){
+  o=o||{};
+  if(kind==="book"){ var w=104,h=22; return {h:h,s:'<rect class="o" x="'+(x-w/2)+'" y="'+(yb-h)+'" width="'+w+'" height="'+h+'" rx="3"/><line x1="'+(x-w/2+10)+'" y1="'+(yb-h)+'" x2="'+(x-w/2+10)+'" y2="'+yb+'" stroke="var(--purple)" stroke-width="2"/><text class="ot" x="'+x+'" y="'+(yb-6)+'" style="font-size:13px">book</text>'}; }
+  if(kind==="ball"){ return {h:40,s:'<circle class="o" cx="'+x+'" cy="'+(yb-20)+'" r="20"/>'}; }
+  if(kind==="puck"){ return {h:14,s:'<ellipse cx="'+x+'" cy="'+(yb-7)+'" rx="30" ry="7" fill="var(--purple)"/>'}; }
+  if(kind==="cart"){ var cw=86; return {h:52,s:'<rect class="o" x="'+(x-cw/2)+'" y="'+(yb-52)+'" width="'+cw+'" height="34" rx="4"/><circle class="o" cx="'+(x-24)+'" cy="'+(yb-9)+'" r="9"/><circle class="o" cx="'+(x+24)+'" cy="'+(yb-9)+'" r="9"/>'+(o.txt?'<text class="ot" x="'+x+'" y="'+(yb-30)+'">'+o.txt+'</text>':'')}; }
+  if(kind==="rock"){ return {h:46,s:'<polygon class="o" points="'+[[x-30,yb-14],[x-18,yb-40],[x+6,yb-46],[x+28,yb-30],[x+30,yb-8],[x+4,yb],[x-22,yb-2]].map(function(p){return p.join(",");}).join(" ")+'"/>'}; }
+  var bw=o.w||84, bh=o.h||56;
+  return {h:bh,s:'<rect class="o" x="'+(x-bw/2)+'" y="'+(yb-bh)+'" width="'+bw+'" height="'+bh+'" rx="4"/>'+(o.txt?'<text class="ot" x="'+x+'" y="'+(yb-bh/2+5)+'">'+o.txt+'</text>':'')};
+}
+
+function sceneSVG(sc){
+  var s='', W=480, H=240;
+  if(sc.t==="floor"){
+    var gy=196, ob=drawObj(sc.o,240,gy,sc);
+    s+='<line class="gr" x1="20" y1="'+gy+'" x2="460" y2="'+gy+'"/>'+hatchRow(20,460,gy,true);
+    if(sc.surf) s+=note(456,232,sc.surf,"end");
+    if(sc.rope){ s+='<line x1="'+(240+43)+'" y1="'+(gy-36)+'" x2="420" y2="'+(gy-36)+'" stroke="var(--c-f)" stroke-width="4"/>'; }
+    if(sc.push){ s+='<path d="M240 '+(gy-90)+' L240 '+(gy-34)+'" stroke="var(--muted)" stroke-width="10" stroke-linecap="round"/>'+note(256,gy-70,"your hand pushes down","start"); }
+    s+=ob.s;
+    if(sc.v){
+      var y=gy-ob.h-26, a=sc.v==="right"?[195,295]:[295,195];
+      s+=vArrow(a[0],y,a[1],y);
+      if(sc.note) s+=note(245,y-16,sc.note);
+    }
+  }
+  else if(sc.t==="hang"){
+    s+='<line class="gr" x1="120" y1="16" x2="360" y2="16"/>'+hatchRow(120,360,16,false);
+    if(sc.o==="lamp"){
+      s+='<line x1="240" y1="16" x2="240" y2="108" stroke="var(--ink)" stroke-width="3"/>'+
+         '<polygon class="o" points="206,148 274,148 258,108 222,108"/><circle cx="240" cy="160" r="10" fill="var(--c-f)" opacity=".8"/>';
+    } else {
+      s+='<line x1="240" y1="16" x2="240" y2="76" stroke="var(--ink)" stroke-width="3"/>'+
+         '<rect class="o" x="185" y="76" width="110" height="120" rx="4"/><text class="ot" x="240" y="142">elevator</text>';
+      if(sc.v){ s+=vArrow(340,180,340,96); if(sc.note) s+=note(356,142,sc.note,"start"); }
+    }
+  }
+  else if(sc.t==="air"){
+    s+='<line x1="20" y1="232" x2="460" y2="232" stroke="var(--ground)" stroke-width="2" opacity=".6"/>';
+    var c=sc.at;
+    if(sc.path==="vertical") s+='<line class="path" x1="'+c[0]+'" y1="226" x2="'+c[0]+'" y2="'+(sc.v==="zero"?c[1]+24:c[1]+24)+'"/>';
+    if(sc.path==="arc") s+='<path class="path" d="M60 230 Q 240 -14 420 230"/>';
+    if(sc.path==="table"){ s+='<rect x="30" y="98" width="150" height="12" class="o"/><line x1="44" y1="110" x2="44" y2="232" stroke="var(--purple)" stroke-width="3"/><line x1="166" y1="110" x2="166" y2="232" stroke="var(--purple)" stroke-width="3"/>'+
+      '<path class="path" d="M120 78 L180 78 Q 215 80 236 150 Q 250 200 262 232"/>'; }
+    var r=20;
+    if(sc.o==="ball"){ s+='<circle class="o" cx="'+c[0]+'" cy="'+c[1]+'" r="20"/>'; }
+    else if(sc.o==="rock"){ var rk=drawObj("rock",c[0],c[1]+23); s+=rk.s; r=28; }
+    else if(sc.o==="diver"){
+      var x=c[0], yy=c[1];
+      s+='<g stroke="var(--purple)" stroke-width="5" stroke-linecap="round" fill="none">'+
+         '<line x1="'+(x-34)+'" y1="'+yy+'" x2="'+(x+26)+'" y2="'+yy+'"/>'+
+         '<line x1="'+(x+14)+'" y1="'+yy+'" x2="'+(x+34)+'" y2="'+(yy-28)+'"/>'+
+         '<line x1="'+(x+14)+'" y1="'+yy+'" x2="'+(x+2)+'" y2="'+(yy-26)+'"/>'+
+         '<line x1="'+(x-34)+'" y1="'+yy+'" x2="'+(x-52)+'" y2="'+(yy-22)+'"/>'+
+         '<line x1="'+(x-30)+'" y1="'+yy+'" x2="'+(x-58)+'" y2="'+(yy-6)+'"/></g>'+
+         '<circle class="o" cx="'+(x+40)+'" cy="'+(yy+2)+'" r="10"/>';
+      r=40;
+    }
+    else if(sc.o==="chute"){
+      var x2=c[0], y2=c[1];
+      s+='<path class="o" d="M'+(x2-80)+' '+(y2-70)+' Q '+x2+' '+(y2-150)+' '+(x2+80)+' '+(y2-70)+' Q '+x2+' '+(y2-92)+' '+(x2-80)+' '+(y2-70)+' Z"/>'+
+         '<g stroke="var(--muted)" stroke-width="1.5"><line x1="'+(x2-80)+'" y1="'+(y2-70)+'" x2="'+(x2-4)+'" y2="'+(y2-8)+'"/><line x1="'+(x2+80)+'" y1="'+(y2-70)+'" x2="'+(x2+4)+'" y2="'+(y2-8)+'"/></g>'+
+         '<g stroke="var(--purple)" stroke-width="5" stroke-linecap="round"><line x1="'+x2+'" y1="'+(y2-6)+'" x2="'+x2+'" y2="'+(y2+26)+'"/><line x1="'+x2+'" y1="'+(y2+26)+'" x2="'+(x2-9)+'" y2="'+(y2+48)+'"/><line x1="'+x2+'" y1="'+(y2+26)+'" x2="'+(x2+9)+'" y2="'+(y2+48)+'"/><line x1="'+x2+'" y1="'+(y2+2)+'" x2="'+(x2-12)+'" y2="'+(y2-10)+'"/><line x1="'+x2+'" y1="'+(y2+2)+'" x2="'+(x2+12)+'" y2="'+(y2-10)+'"/></g>'+
+         '<circle class="o" cx="'+x2+'" cy="'+(y2-16)+'" r="9"/>';
+      r=40;
+    }
+    if(sc.v==="zero"){ s+=note(c[0]+32,c[1]+6,sc.note,"start"); }
+    else if(typeof sc.v==="number"){
+      if(sc.o==="diver"||sc.o==="chute"||sc.o==="rock"){
+        var vx=c[0]+110; s+=vArrow(vx,c[1]-40,vx,c[1]+50); if(sc.note) s+=note(vx+14,c[1]+8,sc.note,"start");
+      } else {
+        var rad=sc.v*Math.PI/180, ux=Math.cos(rad), uy=-Math.sin(rad);
+        var off=sc.path==="vertical"?34:0;
+        s+=vArrow(c[0]+off+ux*(r+8), c[1]+uy*(r+8), c[0]+off+ux*(r+76), c[1]+uy*(r+76));
+        if(sc.note) s+=note(c[0]+off+16, c[1]+uy*(r+40)+6, sc.note, "start");
+      }
+    }
+  }
+  else if(sc.t==="rope"){
+    s+='<line x1="96" y1="120" x2="384" y2="120" stroke="var(--c-f)" stroke-width="7" stroke-linecap="round"/>'+
+       '<rect x="234" y="104" width="12" height="32" fill="var(--answer)" rx="2"/>'+
+       '<text class="ot" x="84" y="126" style="font-size:18px;text-anchor:end">Team A</text><text class="ot" x="396" y="126" style="font-size:18px;text-anchor:start">Team B</text>'+
+       note(240,170,"the rope is the object");
+  }
+  else if(sc.t==="ramp"){
+    s+=rampSVG(40,440,214,sc.th,sc.o||"box",sc.v,sc.note,"θ",sc.hand);
+  }
+  else if(sc.t==="ramp2"){
+    s+=rampSVG(16,226,222,20,"box",null,null,"20°",false,.62);
+    s+=rampSVG(254,464,222,45,"box",null,null,"45°",false,.62);
+  }
+  return '<svg class="scene" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Scene sketch">'+s+'</svg>';
+}
+
+function rampSVG(x0,x1,yb,th,obj,v,nt,angLabel,hand,scale){
+  scale=scale||1;
+  var t=th*Math.PI/180, w=x1-x0, top=yb-w*Math.tan(t);
+  var s='<polygon class="rampfill" points="'+x0+','+yb+' '+x1+','+yb+' '+x0+','+r1(top)+'"/>';
+  var R=44*scale, ex=x1-R*Math.cos(t), ey=yb-R*Math.sin(t);
+  s+='<path d="M'+(x1-R)+' '+yb+' A'+R+' '+R+' 0 0 1 '+r1(ex)+' '+r1(ey)+'" fill="none" stroke="var(--muted)" stroke-width="2"/>';
+  var lx=x1-(R+22)*Math.cos(t/2), ly=yb-(R+22)*Math.sin(t/2)+6;
+  s+='<text class="note" x="'+r1(lx)+'" y="'+r1(ly)+'" text-anchor="middle" style="font-weight:600">'+angLabel+'</text>';
+  var p=.45, px=x0+w*p, py=top+(yb-top)*p;
+  var bw=70*scale, bh=46*scale;
+  s+='<g transform="translate('+r1(px)+' '+r1(py)+') rotate('+th+')">';
+  if(obj==="cart"){
+    s+='<rect class="o" x="'+(-bw/2)+'" y="'+(-bh-6)+'" width="'+bw+'" height="'+(bh-12)+'" rx="4"/><circle class="o" cx="'+(-bw/4)+'" cy="-9" r="8"/><circle class="o" cx="'+(bw/4)+'" cy="-9" r="8"/>';
+  } else {
+    s+='<rect class="o" x="'+(-bw/2)+'" y="'+(-bh)+'" width="'+bw+'" height="'+bh+'" rx="3"/>';
+  }
+  if(hand){ s+='<line x1="'+(bw/2+50)+'" y1="'+(-bh/2)+'" x2="'+(bw/2+6)+'" y2="'+(-bh/2)+'" stroke="var(--muted)" stroke-width="10" stroke-linecap="round"/>'; }
+  if(v){
+    var yv=-bh-24, a=v==="down"?[-46,46]:[46,-46];
+    s+=vArrow(a[0],yv,a[1],yv);
+    if(nt) s+='<text class="note" x="0" y="'+(yv-16)+'" text-anchor="middle">'+nt+'</text>';
+  }
+  s+='</g>';
+  return s;
+}
+
+/* ---------- Free body diagram ---------- */
+function labelHTML(f){
+  var sub=FORCES[f.k].sub;
+  var s='F<tspan dy="7" font-size="15">'+sub+'</tspan>';
+  if(f.v) s+='<tspan dy="-7"> = '+f.v+'</tspan>';
+  return s;
+}
+function fbdSVG(d,doAnim){
+  var W=520,H=400,cx=260,cy=200,L=140,h=30,th=d.th||0,s='',bg='';
+  if(d.th!=null){
+    var t=th*Math.PI/180, sx=cx-Math.sin(t)*h, sy=cy+Math.cos(t)*h, dx=Math.cos(t), dy=Math.sin(t);
+    var p1=[sx-dx*300, sy-dy*300], p2=[sx+dx*300, sy+dy*300];
+    bg+='<polygon class="rampfill" style="stroke:none" points="'+r1(p1[0])+','+r1(p1[1])+' '+r1(p2[0])+','+r1(p2[1])+' '+r1(p1[0])+','+r1(p2[1])+'"/>';
+    bg+='<line class="gr" x1="'+r1(p1[0])+'" y1="'+r1(p1[1])+'" x2="'+r1(p2[0])+'" y2="'+r1(p2[1])+'"/>';
+  }
+  s+='<rect x="'+(cx-h)+'" y="'+(cy-h)+'" width="'+(2*h)+'" height="'+(2*h)+'" rx="3" class="o" transform="rotate('+th+' '+cx+' '+cy+')"/>';
+  d.f.forEach(function(f,i){
+    var rad=f.a*Math.PI/180, ux=Math.cos(rad), uy=-Math.sin(rad);
+    var rel=(f.a+th)*Math.PI/180, e=h/Math.max(Math.abs(Math.cos(rel)),Math.abs(Math.sin(rel)));
+    var ox=f.ox||0, oy=f.oy||0;
+    var x1=cx+ox+ux*e, y1=cy+oy+uy*e, len=Math.max(f.l*L,30), x2=x1+ux*len, y2=y1+uy*len;
+    var col='var(--c-'+f.k+')';
+    var hd=head(x1,y1,x2,y2,18,null,col);
+    var tx,ty,anc;
+    if(ox){ anc=ox>0?"start":"end"; tx=x2+(ox>0?10:-10); ty=y2+(uy>0?-2:16); }
+    else if(oy){ anc=ux>0?"start":"end"; tx=x2+ux*12; ty=y2+(oy<0?-4:20); }
+    else {
+      tx=x2+ux*14; ty=y2+uy*14;
+      anc=ux>.35?"start":(ux<-.35?"end":"middle");
+      if(uy<-.35) ty+=0; else if(uy>.35) ty+=18; else ty+=7;
+    }
+    s+='<g class="'+(doAnim?'arr':'')+'" style="--i:'+i+'">'+
+       '<path d="M'+r1(x1)+' '+r1(y1)+' L'+r1(hd.bx)+' '+r1(hd.by)+'" pathLength="1" stroke="'+col+'" stroke-width="5" stroke-linecap="round" fill="none"/>'+hd.s+
+       '<text class="flabel" x="'+r1(tx)+'" y="'+r1(ty)+'" text-anchor="'+anc+'" fill="'+col+'">'+labelHTML(f)+'</text></g>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Free body diagram">'+bg+'<g class="fit">'+s+'</g></svg>';
+}
+/* Crop each diagram to its arrows + labels so it fills the space. */
+function fitDiagrams(root){
+  var svgs=root.querySelectorAll(".diagram svg"), boxes=[];
+  svgs.forEach(function(svg){ try{ boxes.push(svg.querySelector(".fit").getBBox()); }catch(e){ boxes.push(null); } });
+  var mw=0, mh=0; boxes.forEach(function(b){ if(b){ mw=Math.max(mw,b.width); mh=Math.max(mh,b.height); } });
+  svgs.forEach(function(svg,i){ var b=boxes[i]; if(!b||!b.width) return;
+    var pad=22, w=Math.max(mw,240)+pad*2, h=Math.max(mh,200)+pad*2;
+    var x=b.x+b.width/2-w/2, y=b.y+b.height/2-h/2;
+    svg.setAttribute("viewBox",[x,y,w,h].map(function(n){return Math.round(n);}).join(" ")); });
+}
+
+/* ---------- State & render ---------- */
+var KEY="webb-fbd-practicer-v1", idx=0, shown=false, seen={}, skipped={};
+try{ var saved=JSON.parse(localStorage.getItem(KEY)||"{}"); if(typeof saved.i==="number"&&saved.i<Q.length) idx=saved.i; seen=saved.seen||{}; skipped=saved.skipped||{}; }catch(e){}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({i:idx,seen:seen,skipped:skipped})); }catch(e){} }
+function step(dir){ for(var i=idx+dir;i>=0&&i<Q.length;i+=dir){ if(!skipped[i]) return i; } return -1; }
+function skipCount(){ return Object.keys(skipped).filter(function(k){return skipped[k];}).length; }
+
+var $=function(id){return document.getElementById(id);};
+
+function buildNav(){
+  var lv=$("levels"), dots=$("dots"); lv.innerHTML=""; dots.innerHTML="";
+  LEVELS.forEach(function(L,li){
+    var first=Q.findIndex(function(q){return q.lv===li;});
+    var b=document.createElement("button"); b.type="button"; b.className="lvl"; b.id="lvl"+li;
+    b.innerHTML="<b>"+(li+1)+"</b>"+L.name; b.onclick=function(){ go(first); }; lv.appendChild(b);
+    var g=document.createElement("div"); g.className="dotgroup";
+    Q.forEach(function(q,qi){ if(q.lv!==li) return;
+      var d=document.createElement("button"); d.type="button"; d.className="dot"; d.id="dot"+qi; d.textContent=qi+1;
+      d.setAttribute("aria-label","Question "+(qi+1)); d.onclick=function(){ go(qi); }; g.appendChild(d); });
+    dots.appendChild(g);
+  });
+  var cl=document.createElement("button"); cl.type="button"; cl.className="ghost skipnote"; cl.id="clearSkips";
+  cl.onclick=function(){ skipped={}; save(); render(); }; dots.appendChild(cl);
+  var key=$("key"); key.innerHTML="";
+  Object.keys(FORCES).forEach(function(k){
+    key.innerHTML+='<span class="sym" style="color:var(--c-'+k+')">'+sym(k)+'</span><span>'+FORCES[k].name+'</span>';
+  });
+}
+
+function render(){
+  var q=Q[idx];
+  $("qnum").textContent="#"+(idx+1);
+  $("lvlname").innerHTML="Level "+(q.lv+1)+" · "+LEVELS[q.lv].name;
+  $("prompt").innerHTML=q.p;
+  $("task").innerHTML=q.t; $("task").hidden=!q.t;
+  $("scene").innerHTML=sceneSVG(q.sc);
+  LEVELS.forEach(function(_,li){ $("lvl"+li).setAttribute("aria-current", String(li===q.lv)); });
+  Q.forEach(function(_,qi){ var d=$("dot"+qi); d.setAttribute("aria-current",String(qi===idx)); d.classList.toggle("seen",!!seen[qi]); d.classList.toggle("skip",!!skipped[qi]); });
+  $("prev").disabled=step(-1)<0; $("next").disabled=step(1)<0;
+  var sk=!!skipped[idx]; $("skipBtn").setAttribute("aria-pressed",String(sk)); $("skipBtn").textContent=sk?"Skipped · tap to include":"Skip this one";
+  var n=skipCount(); $("clearSkips").hidden=n===0; $("clearSkips").textContent="Clear skips ("+n+")";
+  renderAnswer(false);
+  save();
+}
+
+function renderAnswer(anim){
+  var q=Q[idx], a=$("answer");
+  $("reveal").textContent=shown?"Hide answer":"Reveal answer";
+  if(!shown){
+    a.innerHTML='<button class="placeholder" type="button" id="ph"><span><span class="big">Draw it on your whiteboard!</span><span class="small">Click to reveal the answer.</span></span></button>';
+    $("ph").onclick=toggle; return;
+  }
+  var html='<div class="diagrams">';
+  q.d.forEach(function(d){ html+='<figure class="diagram" style="margin:0">'+fbdSVG(d,anim)+(d.cap?'<figcaption>'+d.cap+'</figcaption>':'')+'</figure>'; });
+  html+='</div><div class="result">';
+  var n=q.net;
+  if(n.custom){ html+='<span class="fnet">'+n.custom+'</span>'; }
+  else if(n.bal){ html+='<span class="pill bal">Balanced</span><span class="fnet">F<sub>net</sub> = 0 N; No Direction</span>'; }
+  else if(n.val){ html+='<span class="pill unbal">Unbalanced</span><span class="fnet">F<sub>net</sub> = '+n.val+' '+n.dir+'</span>'; }
+  else { html+='<span class="pill unbal">Unbalanced</span><span class="fnet">F<sub>net</sub> points '+n.dir+'</span>'; }
+  html+='</div><ul class="why">'+q.why.map(function(w){return "<li>"+w+"</li>";}).join("")+'</ul>';
+  html+='<div class="watch"><strong>Watch for:</strong> '+q.watch+'</div>';
+  a.innerHTML=html;
+  fitDiagrams(a);
+}
+
+function toggle(){ shown=!shown; if(shown){ seen[idx]=1; save(); var d=$("dot"+idx); if(d) d.classList.add("seen"); } renderAnswer(shown); }
+function go(i){ if(i<0||i>=Q.length) return; idx=i; shown=false; render(); }
+
+$("prev").onclick=function(){ go(step(-1)); };
+$("next").onclick=function(){ go(step(1)); };
+$("skipBtn").onclick=function(){
+  if(skipped[idx]){ delete skipped[idx]; save(); render(); return; }
+  skipped[idx]=1; save();
+  var n=step(1); if(n<0) n=step(-1);
+  if(n>=0) go(n); else render();
+};
+$("reveal").onclick=toggle;
+$("rulesBtn").onclick=function(){ $("overlay").hidden=false; $("closeRules").focus(); };
+$("closeRules").onclick=function(){ $("overlay").hidden=true; };
+$("overlay").addEventListener("click",function(e){ if(e.target===this) this.hidden=true; });
+$("fsBtn").onclick=function(){
+  try{
+    if(document.fullscreenElement){ document.exitFullscreen().catch(function(){}); }
+    else { var p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(function(){ $("fsBtn").textContent="Full screen unavailable"; }); }
+  }catch(e){ $("fsBtn").textContent="Full screen unavailable"; }
+};
+document.addEventListener("keydown",function(e){
+  if(!$("overlay").hidden){ if(e.key==="Escape") $("overlay").hidden=true; return; }
+  if(e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")) return;
+  var k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"){ e.preventDefault(); if(!shown) toggle(); else go(step(1)); }
+  else if(k==="ArrowLeft"||k==="PageUp"){ e.preventDefault(); go(step(-1)); }
+  else if(k===" "||k==="Enter"){ if(e.target&&e.target.tagName==="BUTTON"&&k==="Enter") return; e.preventDefault(); toggle(); }
+});
+
+buildNav();
+render();
+})();
+</script>
+
+</body>
+</html>
