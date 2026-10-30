@@ -15,7 +15,7 @@ A whole-class free body diagram practice tool for Unit 3: Newton's Laws (Chem/Ph
 
 Labels match the Unit 3 slides: F<sub>N</sub>, F<sub>app</sub>, F<sub>g</sub>, F<sub>f</sub>, plus F<sub>T</sub> (tension) and F<sub>air</sub> (air resistance). F<sub>net</sub> is written as "0 N; No Direction" or "20 N to the right".
 
-Each answer shows the FBD (arrows draw in one at a time), Balanced or Unbalanced, F<sub>net</sub>, a short "why", and a "Watch for" line with the common mistake.
+Each answer shows the FBD (arrows draw in one at a time), Balanced or Unbalanced, F<sub>net</sub>, a short "why", and a "Watch for" line with the common mistake. The FBD is sized to fill the answer panel so it reads well on a projector. On wide, short screens the text sits beside the diagram; on taller screens it sits underneath.
 
 ## Using it in class
 
@@ -24,7 +24,7 @@ Each answer shows the FBD (arrows draw in one at a time), Balanced or Unbalanced
 - **Short on time?** Click **Skip this one** on any question. Next and Back pass over skipped questions, and the number buttons show them crossed out. **Clear skips** brings them all back.
 - **Jump around:** click a level tab or a question number.
 - **FBD Rules:** opens the steps from the slides and a key of all six forces.
-- **Full screen:** makes the diagrams bigger on the projector.
+- **Full screen:** hides the browser bars and the keyboard hint so the answer diagram gets as much room as possible.
 
 The page remembers which question you were on and which ones you skipped, in that browser only.
 

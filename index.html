@@ -70,6 +70,8 @@ button{font:inherit;color:inherit}
 .ghost:hover{background:var(--lav-soft)}
 
 /* Progress dots */
+.navrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.navrow .tools{margin-left:auto}
 .dots{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
 .dotgroup{display:flex;gap:4px}
 .dot{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;
@@ -84,7 +86,7 @@ button{font:inherit;color:inherit}
 .skipnote{font-size:.8rem;color:var(--muted)}
 
 /* Cards */
-.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;min-height:0}
+.stage{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:18px;min-height:0}
 .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:clamp(16px,2vw,28px);
   display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;overflow:auto}
 .eyebrow{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
@@ -101,18 +103,32 @@ button{font:inherit;color:inherit}
 .placeholder:hover{background:var(--lav-soft)}
 .placeholder .big{font-size:clamp(1.6rem,3vw,2.6rem);font-weight:600;color:var(--purple);display:block}
 .placeholder .small{font-size:1rem;color:var(--muted);display:block;margin-top:6px}
-.diagrams{display:flex;gap:10px;justify-content:center;flex:1 1 0;min-height:170px}
-.diagram{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center}
+.answer{padding:clamp(10px,1.2vw,20px)}
+/* Answer = big FBD + compact text. Stacked on tall cards; FBD left / text right on wide, short cards (small projectors). */
+.ans{flex:1 1 0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px}
+.diagrams{display:flex;gap:10px;justify-content:center;min-height:0}
+.diagram{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center}
 .diagram svg{width:100%;flex:1 1 0;min-height:0;display:block}
-.result,.why,.watch{flex:none}
+.anstext{display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
+.notes{display:flex;flex-direction:column;gap:8px}
+@media (min-width:901px){
+  .answer{container-type:size}
+  @container (min-width:560px) and (min-aspect-ratio:1.25){
+    .ans{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1.6fr) minmax(14rem,1fr);gap:16px}
+    .anstext{overflow:auto;justify-content:center;border-left:1.5px solid var(--line);padding-left:16px}
+  }
+  @container (min-width:760px) and (max-aspect-ratio:1.25){
+    .notes{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start;gap:14px}
+  }
+}
 .diagram figcaption{font-weight:600;color:var(--muted);font-size:.95rem}
 .result{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
-.pill{border-radius:999px;padding:3px 14px;font-weight:600;font-size:1rem;border:2px solid currentColor}
+.pill{border-radius:999px;padding:2px 12px;font-weight:600;font-size:.92rem;border:2px solid currentColor}
 .pill.bal{color:var(--c-T)} .pill.unbal{color:var(--answer)}
-.fnet{font-size:clamp(1.15rem,1.9vw,1.6rem);font-weight:600;color:var(--answer)}
+.fnet{font-size:clamp(1.05rem,1.5vw,1.4rem);font-weight:600;color:var(--answer)}
 .fnet sub,.why sub,.rules sub,.prompt sub,.task sub,.watch sub{font-size:.65em}
-.why{margin:0;padding-left:1.2em;font-size:clamp(.98rem,1.3vw,1.15rem);display:grid;gap:4px}
-.watch{background:var(--lav-soft);border-radius:10px;padding:10px 14px;font-size:clamp(.95rem,1.2vw,1.08rem)}
+.why{margin:0;padding-left:1.2em;font-size:clamp(.9rem,1.05vw,1.05rem);line-height:1.35;display:grid;gap:4px}
+.watch{background:var(--lav-soft);border-radius:10px;padding:8px 12px;font-size:clamp(.88rem,1vw,1rem);line-height:1.35}
 .watch strong{color:var(--purple)}
 
 /* Controls */
@@ -123,6 +139,7 @@ button{font:inherit;color:inherit}
 .btn.pri{background:var(--purple);color:var(--purple-ink);min-width:12rem}
 .btn:disabled{opacity:.4;cursor:default}
 .hint{font-size:.8rem;color:var(--muted);text-align:center}
+:root:fullscreen .hint{display:none}
 .credit{font-size:.72rem;color:var(--muted);text-align:center;margin:0}
 .credit a{color:inherit}
 
@@ -147,7 +164,7 @@ svg text{font-family:var(--font)}
 .vlab{fill:var(--muted);font-size:17px;font-style:italic;font-weight:600}
 .note{fill:var(--muted);font-size:15px}
 .path{stroke:var(--ground);stroke-width:2;stroke-dasharray:3 6;fill:none}
-.flabel{font-size:22px;font-weight:600}
+.flabel{font-size:27px;font-weight:700}
 .arr path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .42s ease-out forwards;animation-delay:calc(var(--i) * .4s)}
 .arr polygon,.arr text{opacity:0;animation:fade .25s ease-out forwards;animation-delay:calc(var(--i) * .4s + .35s)}
 @keyframes draw{to{stroke-dashoffset:0}}
@@ -160,6 +177,7 @@ svg text{font-family:var(--font)}
 @media (max-width:900px){
   .app{height:auto}
   .card{overflow:visible}
+  .ans{display:flex;flex-direction:column;flex:none}
   .diagrams{flex:none;flex-wrap:wrap}
   .diagram{flex:1 1 240px}
   .diagram svg{flex:none;height:auto;max-height:60vh}
@@ -171,18 +189,19 @@ svg text{font-family:var(--font)}
 </style>
 </head>
 <body>
-
 <div class="app" id="app">
   <header class="top">
     <div class="brand"><small>Unit 3 · Newton's Laws</small><h1>Free Body Diagram Practicer</h1></div>
     <nav class="levels" id="levels" aria-label="Levels"></nav>
+  </header>
+
+  <div class="navrow">
+    <div class="dots" id="dots" aria-label="Questions"><span></span></div>
     <div class="tools">
       <button class="ghost" id="rulesBtn" type="button">FBD Rules</button>
       <button class="ghost" id="fsBtn" type="button">Full screen</button>
     </div>
-  </header>
-
-  <div class="dots" id="dots" aria-label="Questions"><span></span></div>
+  </div>
 
   <main class="stage">
     <section class="card" aria-live="polite">
@@ -599,8 +618,8 @@ function rampSVG(x0,x1,yb,th,obj,v,nt,angLabel,hand,scale){
 /* ---------- Free body diagram ---------- */
 function labelHTML(f){
   var sub=FORCES[f.k].sub;
-  var s='F<tspan dy="7" font-size="15">'+sub+'</tspan>';
-  if(f.v) s+='<tspan dy="-7"> = '+f.v+'</tspan>';
+  var s='F<tspan dy="8" font-size="18">'+sub+'</tspan>';
+  if(f.v) s+='<tspan dy="-8"> = '+f.v+'</tspan>';
   return s;
 }
 function fbdSVG(d,doAnim){
@@ -611,16 +630,16 @@ function fbdSVG(d,doAnim){
     bg+='<polygon class="rampfill" style="stroke:none" points="'+r1(p1[0])+','+r1(p1[1])+' '+r1(p2[0])+','+r1(p2[1])+' '+r1(p1[0])+','+r1(p2[1])+'"/>';
     bg+='<line class="gr" x1="'+r1(p1[0])+'" y1="'+r1(p1[1])+'" x2="'+r1(p2[0])+'" y2="'+r1(p2[1])+'"/>';
   }
-  s+='<rect x="'+(cx-h)+'" y="'+(cy-h)+'" width="'+(2*h)+'" height="'+(2*h)+'" rx="3" class="o" transform="rotate('+th+' '+cx+' '+cy+')"/>';
+  s+='<rect x="'+(cx-h)+'" y="'+(cy-h)+'" width="'+(2*h)+'" height="'+(2*h)+'" rx="3" class="o" style="stroke-width:4" transform="rotate('+th+' '+cx+' '+cy+')"/>';
   d.f.forEach(function(f,i){
     var rad=f.a*Math.PI/180, ux=Math.cos(rad), uy=-Math.sin(rad);
     var rel=(f.a+th)*Math.PI/180, e=h/Math.max(Math.abs(Math.cos(rel)),Math.abs(Math.sin(rel)));
     var ox=f.ox||0, oy=f.oy||0;
     var x1=cx+ox+ux*e, y1=cy+oy+uy*e, len=Math.max(f.l*L,30), x2=x1+ux*len, y2=y1+uy*len;
     var col='var(--c-'+f.k+')';
-    var hd=head(x1,y1,x2,y2,18,null,col);
+    var hd=head(x1,y1,x2,y2,23,null,col);
     var tx,ty,anc;
-    if(ox){ anc=ox>0?"start":"end"; tx=x2+(ox>0?10:-10); ty=y2+(uy>0?-2:16); }
+    if(ox){ anc=ox>0?"start":"end"; tx=x2+(ox>0?18:-18); ty=y2+(uy>0?-2:16); }
     else if(oy){ anc=ux>0?"start":"end"; tx=x2+ux*12; ty=y2+(oy<0?-4:20); }
     else {
       tx=x2+ux*14; ty=y2+uy*14;
@@ -628,7 +647,7 @@ function fbdSVG(d,doAnim){
       if(uy<-.35) ty+=0; else if(uy>.35) ty+=18; else ty+=7;
     }
     s+='<g class="'+(doAnim?'arr':'')+'" style="--i:'+i+'">'+
-       '<path d="M'+r1(x1)+' '+r1(y1)+' L'+r1(hd.bx)+' '+r1(hd.by)+'" pathLength="1" stroke="'+col+'" stroke-width="5" stroke-linecap="round" fill="none"/>'+hd.s+
+       '<path d="M'+r1(x1)+' '+r1(y1)+' L'+r1(hd.bx)+' '+r1(hd.by)+'" pathLength="1" stroke="'+col+'" stroke-width="7" stroke-linecap="round" fill="none"/>'+hd.s+
        '<text class="flabel" x="'+r1(tx)+'" y="'+r1(ty)+'" text-anchor="'+anc+'" fill="'+col+'">'+labelHTML(f)+'</text></g>';
   });
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Free body diagram">'+bg+'<g class="fit">'+s+'</g></svg>';
@@ -639,7 +658,7 @@ function fitDiagrams(root){
   svgs.forEach(function(svg){ try{ boxes.push(svg.querySelector(".fit").getBBox()); }catch(e){ boxes.push(null); } });
   var mw=0, mh=0; boxes.forEach(function(b){ if(b){ mw=Math.max(mw,b.width); mh=Math.max(mh,b.height); } });
   svgs.forEach(function(svg,i){ var b=boxes[i]; if(!b||!b.width) return;
-    var pad=22, w=Math.max(mw,240)+pad*2, h=Math.max(mh,200)+pad*2;
+    var pad=14, w=Math.max(mw,240)+pad*2, h=Math.max(mh,200)+pad*2;
     var x=b.x+b.width/2-w/2, y=b.y+b.height/2-h/2;
     svg.setAttribute("viewBox",[x,y,w,h].map(function(n){return Math.round(n);}).join(" ")); });
 }
@@ -696,16 +715,16 @@ function renderAnswer(anim){
     a.innerHTML='<button class="placeholder" type="button" id="ph"><span><span class="big">Draw it on your whiteboard!</span><span class="small">Click to reveal the answer.</span></span></button>';
     $("ph").onclick=toggle; return;
   }
-  var html='<div class="diagrams">';
+  var html='<div class="ans"><div class="diagrams">';
   q.d.forEach(function(d){ html+='<figure class="diagram" style="margin:0">'+fbdSVG(d,anim)+(d.cap?'<figcaption>'+d.cap+'</figcaption>':'')+'</figure>'; });
-  html+='</div><div class="result">';
+  html+='</div><div class="anstext"><div class="result">';
   var n=q.net;
   if(n.custom){ html+='<span class="fnet">'+n.custom+'</span>'; }
   else if(n.bal){ html+='<span class="pill bal">Balanced</span><span class="fnet">F<sub>net</sub> = 0 N; No Direction</span>'; }
   else if(n.val){ html+='<span class="pill unbal">Unbalanced</span><span class="fnet">F<sub>net</sub> = '+n.val+' '+n.dir+'</span>'; }
   else { html+='<span class="pill unbal">Unbalanced</span><span class="fnet">F<sub>net</sub> points '+n.dir+'</span>'; }
-  html+='</div><ul class="why">'+q.why.map(function(w){return "<li>"+w+"</li>";}).join("")+'</ul>';
-  html+='<div class="watch"><strong>Watch for:</strong> '+q.watch+'</div>';
+  html+='</div><div class="notes"><ul class="why">'+q.why.map(function(w){return "<li>"+w+"</li>";}).join("")+'</ul>';
+  html+='<div class="watch"><strong>Watch for:</strong> '+q.watch+'</div></div></div></div>';
   a.innerHTML=html;
   fitDiagrams(a);
 }
